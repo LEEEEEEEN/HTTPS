@@ -17,11 +17,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id=update.effective_chat.id, 
         text="Привет, я бот - твой помощник по созданию привычек!")
 
-
-async def add_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Введите название вашей привычки")
-    habit_name = ' '.join(context.args)
-
     
 async def remove_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pass
@@ -35,7 +30,7 @@ if __name__ == '__main__':
     
     start_handler = CommandHandler('start', start)
     
-    create_conc_handler(application)
+    add_habit(application)
     application.add_handler(start_handler)
     
     application.run_polling() # while True
