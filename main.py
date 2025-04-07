@@ -10,7 +10,7 @@ logging.basicConfig(
 )
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
+    message = await update.message.reply_text(
         "Привет! 👋\n\n"
         "Я помогу тебе управлять твоими привычками.\n\n"
         "Используй команду:\n\n"
@@ -18,6 +18,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🔹 /my_habits — чтобы просмотреть все свои привычки\n\n"
         "Давай начнем! 😊"
     )
+    await message.pin()
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token("8100915495:AAFDv6ITyBPHY7pc7qKZuyWqkc_yG4BFkPQ").build()
