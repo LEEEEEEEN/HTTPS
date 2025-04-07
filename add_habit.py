@@ -22,7 +22,6 @@ async def start_habit_creation(update: Update, context: ContextTypes.DEFAULT_TYP
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     habit_name = update.message.text
     context.user_data['habit_name'] = habit_name
-
     await update.message.reply_text(
         f"Отлично! Теперь укажите, как часто вы хотите выполнять '{habit_name}':"
     )
@@ -34,12 +33,13 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    # Спрашиваем частоту
     await update.message.reply_text("Выберите частоту:", reply_markup=reply_markup)
     return FREQUENCY
 
 
 async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query  # получение данных и контекста о нажатой кнопке
+    query = update.callback_query
     await query.answer()
 
     if query and query.data == "отмена":
