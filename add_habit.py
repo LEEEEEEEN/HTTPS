@@ -25,7 +25,6 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("Ежедневно", callback_data="ежедневно")],
         [InlineKeyboardButton("Раз в неделю", callback_data="раз в неделю")],
-        [InlineKeyboardButton("Отмена", callback_data="отмена")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
