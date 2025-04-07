@@ -146,4 +146,3 @@ def add_habit(application):
     )
 
     application.add_handler(conv_handler)
-

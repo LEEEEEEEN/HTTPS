@@ -1,4 +1,4 @@
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from add_habit import add_habit, show_habits
 
@@ -9,15 +9,27 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+# Начальное приветствие и выбор
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        ["Создать привычку", "Мои привычки"],
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
     await update.message.reply_text(
-        "Привет! Используй команду /add_habit, чтобы начать создание привычки или /my_habits для просмотра привычек."
+        "Привет! Я помогу тебе создать и следить за привычками. Выбери, что ты хочешь сделать:",
+        reply_markup=reply_markup
     )
+
+async def handle_create_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Начнем создание привычки! Как назовем её?", reply_markup=ReplyKeyboardMarkup([[]]))
+    return await start_habit_creation(update, context)
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token("8100915495:AAFDv6ITyBPHY7pc7qKZuyWqkc_yG4BFkPQ").build()
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(CommandHandler('my_habits', show_habits))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Создать привычку$"), handle_create_habit))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Мои привычки$"), show_habits))
     add_habit(application)
 
     application.run_polling()
