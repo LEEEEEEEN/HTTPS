@@ -13,7 +13,7 @@ logging.basicConfig(
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        ["Завести привычку"],
+        ["Завести привычку", "Мои привычки"],
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
@@ -27,7 +27,7 @@ async def remove_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pass
 
 async def see_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    pass
+    await update.message.reply_text("У тебя пока нет сохранённых привычек.")
 
 # запуск хостинга
 if __name__ == '__main__':
@@ -35,6 +35,7 @@ if __name__ == '__main__':
     
     start_handler = CommandHandler('start', start)
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Завести привычку$"), start_habit_creation))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Мои привычки$"), see_habits))
 
     add_habit(application)
     application.add_handler(start_handler)
