@@ -84,7 +84,6 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     frequency = context.user_data['frequency']
     hour = context.user_data['hour']
 
-    # Сохраняем привычку
     user_id = query.from_user.id
     habit = {
         "name": habit_name,
@@ -94,19 +93,17 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if user_id not in user_habits:
         user_habits[user_id] = []
-
     user_habits[user_id].append(habit)
-
-    # Запланировать задачу с использованием JobQueue
     time_str = f"{hour}:{minute.zfill(2)}"
     time_obj = datetime.strptime(time_str, "%H:%M").time()
     now = datetime.now()
     next_time = datetime.combine(now, time_obj)
-
     if next_time < now:
         next_time += timedelta(days=1)  # если время уже прошло сегодня, назначаем на завтра
 
-    job = context.application.job_queue.run_once(send_reminder, next_time, context={'user_id': user_id, 'habit': habit})
+    job = context.application.job_queue.run_once(
+        send_reminder, next_time, data={'user_id': user_id, 'habit': habit}
+    )
 
     await query.edit_message_text(
         f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minute.zfill(2)}.")
@@ -114,7 +111,7 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
-    job_context = context.job.context
+    job_context = context.job.data
     user_id = job_context['user_id']
     habit = job_context['habit']
 
