@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
-from telegram.ext import MessageHandler, ConversationHandler
+from telegram.ext import filters, MessageHandler, ConversationHandler
 from add_habit import *  # Импортируем функцию add_habit
 
 import logging
@@ -13,7 +13,7 @@ logging.basicConfig(
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Просто начинаем создание привычки при старте
-    await start_habit_creation(update, context)
+    return await start_habit_creation(update, context)
 
 
 async def see_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
