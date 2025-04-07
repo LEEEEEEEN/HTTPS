@@ -13,9 +13,8 @@ async def cancel_conversation(update: Update):
 
 
 async def start_habit_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.callback_query.message.reply_text("Начнем создание привычки! Как назовем её?")
+    await update.message.reply_text("Начнем создание привычки! Как назовем её?")
     return NAME
-
 
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -145,5 +144,6 @@ def add_habit(application):
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
+
     application.add_handler(conv_handler)
 
