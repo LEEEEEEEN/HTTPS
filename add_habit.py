@@ -20,19 +20,21 @@ async def start_habit_creation(update: Update, context: ContextTypes.DEFAULT_TYP
     return NAME
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     habit_name = update.message.text
-    context.user_data['habit_name'] = habit_name #сохранение в временный словарь во время диалога
+    context.user_data['habit_name'] = habit_name
 
-    # Создаем клавиатуру с выбором частоты
+    await update.message.reply_text(
+        f"Отлично! Теперь укажите, как часто вы хотите выполнять '{habit_name}':"
+    )
+
     keyboard = [
         [InlineKeyboardButton("Ежедневно", callback_data="ежедневно")],
         [InlineKeyboardButton("Раз в неделю", callback_data="раз в неделю")],
         [InlineKeyboardButton("Отмена", callback_data="отмена")],
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard) # создание клавиатуры (кнопок)
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text(f"Отлично! Теперь укажите, как часто вы хотите выполнять '{habit_name}':", reply_markup=reply_markup)
+    await update.message.reply_text("Выберите частоту:", reply_markup=reply_markup)
     return FREQUENCY
 
 
