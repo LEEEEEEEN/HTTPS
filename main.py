@@ -34,7 +34,8 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token("8100915495:AAFDv6ITyBPHY7pc7qKZuyWqkc_yG4BFkPQ").build()
     
     start_handler = CommandHandler('start', start)
-    
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Завести привычку$"), start_habit_creation))
+
     add_habit(application)
     application.add_handler(start_handler)
     
