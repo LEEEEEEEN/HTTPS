@@ -7,9 +7,7 @@ NAME, FREQUENCY, HOUR, MINUTE, END_CHAT = range(5)
 user_habits = {}
 
 
-async def cancel_conversation(update: Update):
-    await update.message.reply_text("Создание привычки отменено.")
-    return ConversationHandler.END
+
 
 
 async def start_habit_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -63,8 +61,7 @@ async def handle_hour(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    if query and query.data == "отмена":
-        return cancel_conversation(update)
+
 
     context.user_data['hour'] = query.data
 
@@ -83,8 +80,7 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    if query and query.data == "отмена":
-        return cancel_conversation(update)
+
 
     minute = query.data
     habit_name = context.user_data['habit_name']
