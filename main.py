@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from telegram.ext import filters, MessageHandler, ConversationHandler, CallbackQueryHandler
 from telegram import ReplyKeyboardMarkup
-from add_habit import *
+from add_habit import *  # Импортируем функцию add_habit
 
 import logging
 
@@ -25,6 +25,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_start_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Начнем создание привычки! Как назовем её?", reply_markup=ReplyKeyboardMarkup([[]]))
     return await start_habit_creation(update, context)
 
 
@@ -43,14 +44,12 @@ async def see_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(message)
 
 
-# Запуск хостинга
 if __name__ == '__main__':
     application = ApplicationBuilder().token("8100915495:AAFDv6ITyBPHY7pc7qKZuyWqkc_yG4BFkPQ").build()
     start_handler = CommandHandler('start', start)
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Завести привычку$"), handle_start_habit))
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Мои привычки$"), see_habits))
     add_habit(application)
-
-    # Запуск бота
     application.add_handler(start_handler)
+
     application.run_polling()
