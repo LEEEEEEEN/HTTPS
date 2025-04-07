@@ -1,7 +1,5 @@
-from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from add_habit import add_habit, show_habits
-
 import logging
 
 logging.basicConfig(

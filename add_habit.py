@@ -1,11 +1,11 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
     ContextTypes
+from datetime import datetime, timedelta
 
 NAME, FREQUENCY, HOUR, MINUTE, END_CHAT = range(5)
 
 user_habits = {}
-
 
 async def cancel_conversation(update: Update):
     await update.message.reply_text("Создание привычки отменено.")
@@ -58,13 +58,9 @@ async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return HOUR
 
 
-
 async def handle_hour(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
-    if query and query.data == "отмена":
-        return cancel_conversation(update)
 
     context.user_data['hour'] = query.data
 
@@ -82,9 +78,6 @@ async def handle_hour(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
-    if query and query.data == "отмена":
-        return cancel_conversation(update)
 
     minute = query.data
     habit_name = context.user_data['habit_name']
@@ -104,9 +97,30 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_habits[user_id].append(habit)
 
+    time_str = f"{hour}:{minute.zfill(2)}"
+    time_obj = datetime.strptime(time_str, "%H:%M").time()
+    now = datetime.now()
+    next_time = datetime.combine(now, time_obj)
+
+    if next_time < now:
+        next_time += timedelta(days=1)  # если время уже прошло сегодня, назначаем на завтра
+
+    job = context.application.job_queue.run_once(send_reminder, next_time, context={'user_id': user_id, 'habit': habit})
+
     await query.edit_message_text(
         f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minute.zfill(2)}.")
     return ConversationHandler.END
+
+
+async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
+    job_context = context.job.context
+    user_id = job_context['user_id']
+    habit = job_context['habit']
+
+    await context.application.bot.send_message(
+        user_id,
+        f"Напоминание: Пора выполнить привычку '{habit['name']}'! {habit['frequency']} в {habit['time']}."
+    )
 
 
 async def show_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -142,4 +156,3 @@ def add_habit(application):
     )
 
     application.add_handler(conv_handler)
-
