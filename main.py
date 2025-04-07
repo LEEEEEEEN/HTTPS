@@ -27,7 +27,18 @@ async def remove_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pass
 
 async def see_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    pass
+    user_id = update.effective_user.id
+    habits = user_habits.get(user_id, [])
+
+    if not habits:
+        await update.message.reply_text("У вас пока нет привычек.")
+        return
+
+    message = "Ваши привычки:\n\n"
+    for i, h in enumerate(habits, start=1):
+        message += f"{i}. {h['name']} — {h['frequency']} в {h['time']}\n"
+
+    await update.message.reply_text(message)
 
 # запуск хостинга
 if __name__ == '__main__':

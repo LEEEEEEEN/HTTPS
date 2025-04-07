@@ -102,6 +102,21 @@ async def handle_end_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.edit_message_text(
         f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:" + f"{minut}".zfill(2)
     )
+    user_id = query.from_user.id
+    habit = {
+        "name": habit_name,
+        "frequency": frequency,
+        "time": f"{hour}:{minut.zfill(2)}"
+    }
+
+    if user_id not in user_habits:
+        user_habits[user_id] = []
+
+    user_habits[user_id].append(habit)
+
+    await query.edit_message_text(
+        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minut.zfill(2)}"
+    )
     return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -122,3 +137,4 @@ def add_habit(application):
     )
 
     application.add_handler(conv_handler)
+user_habits = {}
