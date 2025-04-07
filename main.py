@@ -1,11 +1,11 @@
-import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from telegram.ext import filters, MessageHandler, ConversationHandler, CallbackQueryHandler
 from telegram import ReplyKeyboardMarkup
 from add_habit import *
 
-# для создания логов (на случай отладки)
+import logging
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -24,6 +24,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def handle_start_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    return await start_habit_creation(update, context)
+
+
 async def see_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     habits = user_habits.get(user_id, [])
@@ -39,15 +43,14 @@ async def see_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(message)
 
 
-# запуск хостинга
+# Запуск хостинга
 if __name__ == '__main__':
     application = ApplicationBuilder().token("8100915495:AAFDv6ITyBPHY7pc7qKZuyWqkc_yG4BFkPQ").build()
-
     start_handler = CommandHandler('start', start)
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Завести привычку$"), start_habit_creation))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Завести привычку$"), handle_start_habit))
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Мои привычки$"), see_habits))
-
     add_habit(application)
-    application.add_handler(start_handler)
 
-    application.run_polling()  # while True
+    # Запуск бота
+    application.add_handler(start_handler)
+    application.run_polling()
