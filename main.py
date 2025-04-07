@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# описание команды /start
+# описание команды /star
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.effective_chat.send_message(
         "Привет, я бот — твой помощник по созданию привычек!"
