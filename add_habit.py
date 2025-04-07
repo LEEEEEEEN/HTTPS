@@ -1,30 +1,10 @@
-import asyncio
-import schedule
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
     ContextTypes
 
 NAME, FREQUENCY, HOUR, MINUTE, END_CHAT = range(5)
+
 user_habits = {}
-
-
-# Функция для отправки напоминания
-async def send_reminder(user_id, habit_name, time):
-    application = await ApplicationBuilder().token("YOUR_BOT_TOKEN").build()
-    await application.bot.send_message(user_id, f"Пора выполнить привычку: {habit_name} в {time}!")
-
-
-# Функция для проверки привычек каждую минуту
-def check_habits(application):
-    async def check_time():
-        while True:
-            now = datetime.datetime.now().strftime("%H:%M")
-            for user_id, habits in user_habits.items():
-                for habit in habits:
-                    if habit['time'] == now:
-                        await send_reminder(user_id, habit['name'], habit['time'])
-            await asyncio.sleep(60)
-    asyncio.create_task(check_time())  # Запуск проверки в фоновом режиме
 
 
 async def cancel_conversation(update: Update):
@@ -57,8 +37,20 @@ async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     context.user_data['frequency'] = query.data
+
     keyboard = [
-        [InlineKeyboardButton(f"{i}:00", callback_data=str(i)) for i in range(24)]
+        [InlineKeyboardButton("00:00", callback_data="0"), InlineKeyboardButton("01:00", callback_data="1")],
+        [InlineKeyboardButton("02:00", callback_data="2"), InlineKeyboardButton("03:00", callback_data="3")],
+        [InlineKeyboardButton("04:00", callback_data="4"), InlineKeyboardButton("05:00", callback_data="5")],
+        [InlineKeyboardButton("06:00", callback_data="6"), InlineKeyboardButton("07:00", callback_data="7")],
+        [InlineKeyboardButton("08:00", callback_data="8"), InlineKeyboardButton("09:00", callback_data="9")],
+        [InlineKeyboardButton("10:00", callback_data="10"), InlineKeyboardButton("11:00", callback_data="11")],
+        [InlineKeyboardButton("12:00", callback_data="12"), InlineKeyboardButton("13:00", callback_data="13")],
+        [InlineKeyboardButton("14:00", callback_data="14"), InlineKeyboardButton("15:00", callback_data="15")],
+        [InlineKeyboardButton("16:00", callback_data="16"), InlineKeyboardButton("17:00", callback_data="17")],
+        [InlineKeyboardButton("18:00", callback_data="18"), InlineKeyboardButton("19:00", callback_data="19")],
+        [InlineKeyboardButton("20:00", callback_data="20"), InlineKeyboardButton("21:00", callback_data="21")],
+        [InlineKeyboardButton("22:00", callback_data="22"), InlineKeyboardButton("23:00", callback_data="23")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -66,14 +58,21 @@ async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return HOUR
 
 
+
 async def handle_hour(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    if query and query.data == "отмена":
+        return cancel_conversation(update)
+
     context.user_data['hour'] = query.data
-    keyboard = [
-        [InlineKeyboardButton(f"{query.data}:{str(min).zfill(2)}", callback_data=str(min)) for min in range(0, 60, 5)]
-    ]
+
+    keyboard = []
+    for min in range(0, 60, 5):
+        row = [InlineKeyboardButton(f"{query.data}:{str(min).zfill(2)}", callback_data=f"{min}")]
+        keyboard.append(row)
+
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await query.edit_message_text("Выберите минуту напоминания:", reply_markup=reply_markup)
@@ -84,11 +83,15 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    if query and query.data == "отмена":
+        return cancel_conversation(update)
+
     minute = query.data
     habit_name = context.user_data['habit_name']
     frequency = context.user_data['frequency']
     hour = context.user_data['hour']
 
+    # Сохраняем привычку
     user_id = query.from_user.id
     habit = {
         "name": habit_name,
@@ -102,9 +105,7 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_habits[user_id].append(habit)
 
     await query.edit_message_text(
-        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minute.zfill(2)}."
-    )
-
+        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minute.zfill(2)}.")
     return ConversationHandler.END
 
 
@@ -141,3 +142,4 @@ def add_habit(application):
     )
 
     application.add_handler(conv_handler)
+
