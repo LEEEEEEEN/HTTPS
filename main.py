@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
-from add_habit import add_habit, show_habits
+from add_habit import add_habit, show_habits, check_habits
 
 import logging
 
@@ -25,5 +25,5 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('my_habits', show_habits))
     add_habit(application)
-
+    check_habits(application)
     application.run_polling()
