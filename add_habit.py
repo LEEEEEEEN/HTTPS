@@ -1,15 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    CallbackQueryHandler,
-    ContextTypes,
-    ConversationHandler,
-    MessageHandler,
-    filters
-)
+from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-NAME, FREQUENCY, HOUR, END_CHAT = range(4)
+NAME, FREQUENCY, HOUR, MINUTE, END_CHAT = range(5)
 
 async def cancel_conversation(update: Update):
     await update.message.reply_text("Создание привычки отменено.")
@@ -17,7 +9,7 @@ async def cancel_conversation(update: Update):
 
 async def start_habit_creation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Начнем создание привычки! Как назовем её?")
-    return NAME  # После отправки сообщения мы возвращаем состояние NAME
+    return NAME  # Начинаем процесс с получения имени
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     habit_name = update.message.text
@@ -33,10 +25,8 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Спрашиваем частоту
     await update.message.reply_text("Выберите частоту:", reply_markup=reply_markup)
-    return FREQUENCY
-
+    return FREQUENCY  # Переходим к вопросу о частоте
 
 async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -66,7 +56,7 @@ async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await query.edit_message_text("В какой час напомнить о привычке?", reply_markup=reply_markup)
-    return HOUR
+    return HOUR  # Переходим к выбору времени
 
 async def handle_hour(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -78,39 +68,36 @@ async def handle_hour(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['hour'] = query.data
 
     keyboard = []
-    for min in range(1, 61, 4):
-        row = [InlineKeyboardButton(f"{query.data}:" + f"{min - 1}".zfill(2), callback_data=f"{min - 2}"),
-               InlineKeyboardButton(f"{query.data}:" + f"{min}".zfill(2), callback_data=f"{min - 1}"),
-               InlineKeyboardButton(f"{query.data}:" + f"{min + 1}".zfill(2), callback_data=f"{min}"),
-               InlineKeyboardButton(f"{query.data}:" + f"{min + 2}".zfill(2), callback_data=f"{min + 1}"),]
+    for min in range(0, 60, 4):
+        row = [InlineKeyboardButton(f"{query.data}:{str(min).zfill(2)}", callback_data=f"{min}")]
         keyboard.append(row)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await query.edit_message_text("В какую минуту?", reply_markup=reply_markup)
-    return END_CHAT
+    await query.edit_message_text("Выберите минуту напоминания:", reply_markup=reply_markup)
+    return MINUTE  # Переходим к минутам
 
-async def handle_end_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
     if query and query.data == "отмена":
         return cancel_conversation(update)
 
-    minut = query.data
-    # Формируем итоговое сообщение
+    minute = query.data
     habit_name = context.user_data['habit_name']
     frequency = context.user_data['frequency']
     hour = context.user_data['hour']
 
     await query.edit_message_text(
-        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minut.zfill(2)}"
+        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minute.zfill(2)}"
     )
+
     user_id = query.from_user.id
     habit = {
         "name": habit_name,
         "frequency": frequency,
-        "time": f"{hour}:{minut.zfill(2)}"
+        "time": f"{hour}:{minute.zfill(2)}"
     }
 
     if user_id not in user_habits:
@@ -118,9 +105,6 @@ async def handle_end_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_habits[user_id].append(habit)
 
-    await query.edit_message_text(
-        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minut.zfill(2)}"
-    )
     return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -133,9 +117,9 @@ def add_habit(application):
         entry_points=[CommandHandler("add_habit", start_habit_creation)],
         states={
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
-            HOUR: [CallbackQueryHandler(handle_hour)],
             FREQUENCY: [CallbackQueryHandler(handle_frequency)],
-            END_CHAT: [CallbackQueryHandler(handle_end_chat)]
+            HOUR: [CallbackQueryHandler(handle_hour)],
+            MINUTE: [CallbackQueryHandler(handle_minute)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
