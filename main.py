@@ -9,10 +9,21 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Отправляем приветственное сообщение
     await update.message.reply_text(
-        "Привет! Используй команду /add_habit, чтобы начать создание привычки или /my_habits для просмотра привычек."
+        "Привет! Я помогу тебе создать привычки. Я предлагаю две опции:\n"
+        "/add_habit — начать создание новой привычки\n"
+        "/my_habits — посмотреть список ваших привычек"
     )
+
+    # Автоматически отправляем команды, чтобы не нужно было их вводить вручную
+    await update.message.reply_text("Выберите действие:", reply_markup=InlineKeyboardMarkup([
+        [InlineKeyboardButton("Создать привычку", callback_data="/add_habit")],
+        [InlineKeyboardButton("Мои привычки", callback_data="/my_habits")]
+    ]))
+
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token("8100915495:AAFDv6ITyBPHY7pc7qKZuyWqkc_yG4BFkPQ").build()
