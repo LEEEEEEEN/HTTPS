@@ -27,7 +27,7 @@ async def remove_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pass
 
 async def see_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("У тебя пока нет сохранённых привычек.")
+    pass
 
 # запуск хостинга
 if __name__ == '__main__':
