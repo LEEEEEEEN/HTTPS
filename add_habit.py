@@ -97,6 +97,7 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_habits[user_id].append(habit)
 
+    # Запланировать задачу с использованием JobQueue
     time_str = f"{hour}:{minute.zfill(2)}"
     time_obj = datetime.strptime(time_str, "%H:%M").time()
     now = datetime.now()
@@ -117,6 +118,7 @@ async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
     user_id = job_context['user_id']
     habit = job_context['habit']
 
+    # Отправляем сообщение пользователю
     await context.application.bot.send_message(
         user_id,
         f"Напоминание: Пора выполнить привычку '{habit['name']}'! {habit['frequency']} в {habit['time']}."
