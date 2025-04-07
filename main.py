@@ -13,9 +13,9 @@ logging.basicConfig(
 
 # описание команды /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text="Привет, я бот - твой помощник по созданию привычек!")
+    await update.effective_chat.send_message(
+        "Привет, я бот — твой помощник по созданию привычек!"
+    )
 
     
 async def remove_habit(update: Update, context: ContextTypes.DEFAULT_TYPE):
