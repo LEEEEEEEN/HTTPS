@@ -1,7 +1,7 @@
+import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from add_habit import add_habit, show_habits, check_habits
-
 import logging
 
 logging.basicConfig(
@@ -20,10 +20,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await message.pin()
 
-if __name__ == '__main__':
+async def main():
     application = ApplicationBuilder().token("8100915495:AAFDv6ITyBPHY7pc7qKZuyWqkc_yG4BFkPQ").build()
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('my_habits', show_habits))
     add_habit(application)
     check_habits(application)
-    application.run_polling()
+    await application.run_polling()
+
+if __name__ == '__main__':
+    asyncio.run(main())
