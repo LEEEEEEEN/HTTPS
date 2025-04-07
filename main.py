@@ -1,5 +1,5 @@
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from add_habit import add_habit, show_habits
 
 import logging
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('start', start))
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Создать привычку$"), handle_create_habit))
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex("^Мои привычки$"), show_habits))
+
     add_habit(application)
 
     application.run_polling()
