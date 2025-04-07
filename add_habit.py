@@ -36,12 +36,9 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
-    if query and query.data == "отмена":
+    if query.data == "отмена":
         return cancel_conversation(update)
-
     context.user_data['frequency'] = query.data
-
     keyboard = [
         [InlineKeyboardButton("00:00", callback_data="0"), InlineKeyboardButton("01:00", callback_data="1")],
         [InlineKeyboardButton("02:00", callback_data="2"), InlineKeyboardButton("03:00", callback_data="3")],
@@ -55,10 +52,9 @@ async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("18:00", callback_data="18"), InlineKeyboardButton("19:00", callback_data="19")],
         [InlineKeyboardButton("20:00", callback_data="20"), InlineKeyboardButton("21:00", callback_data="21")],
         [InlineKeyboardButton("22:00", callback_data="22"), InlineKeyboardButton("23:00", callback_data="23")],
-        [InlineKeyboardButton("Отмена", callback_data="отмена")]
+        [InlineKeyboardButton("Отмена", callback_data="отмена")]  # Кнопка отмены
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-
     await query.edit_message_text("В какой час напомнить о привычке?", reply_markup=reply_markup)
     return HOUR
 
