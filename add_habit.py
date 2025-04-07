@@ -37,7 +37,7 @@ async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     if query.data == "отмена":
-        return cancel_conversation(update)
+        return exit()
     context.user_data['frequency'] = query.data
     keyboard = [
         [InlineKeyboardButton("00:00", callback_data="0"), InlineKeyboardButton("01:00", callback_data="1")],
