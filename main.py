@@ -2,7 +2,7 @@ import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from telegram.ext import filters, MessageHandler, ConversationHandler, CallbackQueryHandler
-
+from telegram import ReplyKeyboardMarkup
 from add_habit import *
 
 # для создания логов (на случай отладки)
@@ -11,10 +11,15 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# описание команды /star
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.effective_chat.send_message(
-        "Привет, я бот — твой помощник по созданию привычек!"
+    keyboard = [
+        ["Завести привычку"],
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
+    await update.message.reply_text(
+        "Привет, я бот — твой помощник по созданию привычек!\nВыбери, что хочешь сделать:",
+        reply_markup=reply_markup
     )
 
     
