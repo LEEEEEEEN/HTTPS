@@ -11,7 +11,7 @@ from telegram.ext import (
 
 NAME, FREQUENCY, HOUR, END_CHAT = range(4)
 
-async def cancel_conversation(update):
+async def cancel_conversation(update: Update):
     await update.message.reply_text("Создание привычки отменено.")
     return ConversationHandler.END
 
@@ -39,28 +39,29 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_frequency(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query # получение данных и контекста о нажатой кнопке
+    query = update.callback_query  # получение данных и контекста о нажатой кнопке
     await query.answer()
 
-    if query and query.data == "отмена": cancel_conversation(update)
+    if query and query.data == "отмена":
+        return cancel_conversation(update)
 
     context.user_data['frequency'] = query.data
 
     # Создаем клавиатуру с выбором времени
     keyboard = [
-    [InlineKeyboardButton("00:00", callback_data="0"), InlineKeyboardButton("01:00", callback_data="1")],
-    [InlineKeyboardButton("02:00", callback_data="2"), InlineKeyboardButton("03:00", callback_data="3")],
-    [InlineKeyboardButton("04:00", callback_data="4"), InlineKeyboardButton("05:00", callback_data="5")],
-    [InlineKeyboardButton("06:00", callback_data="6"), InlineKeyboardButton("07:00", callback_data="7")],
-    [InlineKeyboardButton("08:00", callback_data="8"), InlineKeyboardButton("09:00", callback_data="9")],
-    [InlineKeyboardButton("10:00", callback_data="10"), InlineKeyboardButton("11:00", callback_data="11")],
-    [InlineKeyboardButton("12:00", callback_data="12"), InlineKeyboardButton("13:00", callback_data="13")],
-    [InlineKeyboardButton("14:00", callback_data="14"), InlineKeyboardButton("15:00", callback_data="15")],
-    [InlineKeyboardButton("16:00", callback_data="16"), InlineKeyboardButton("17:00", callback_data="17")],
-    [InlineKeyboardButton("18:00", callback_data="18"), InlineKeyboardButton("19:00", callback_data="19")],
-    [InlineKeyboardButton("20:00", callback_data="20"), InlineKeyboardButton("21:00", callback_data="21")],
-    [InlineKeyboardButton("22:00", callback_data="22"), InlineKeyboardButton("23:00", callback_data="23")],
-    [InlineKeyboardButton("Отмена", callback_data="отмена")]
+        [InlineKeyboardButton("00:00", callback_data="0"), InlineKeyboardButton("01:00", callback_data="1")],
+        [InlineKeyboardButton("02:00", callback_data="2"), InlineKeyboardButton("03:00", callback_data="3")],
+        [InlineKeyboardButton("04:00", callback_data="4"), InlineKeyboardButton("05:00", callback_data="5")],
+        [InlineKeyboardButton("06:00", callback_data="6"), InlineKeyboardButton("07:00", callback_data="7")],
+        [InlineKeyboardButton("08:00", callback_data="8"), InlineKeyboardButton("09:00", callback_data="9")],
+        [InlineKeyboardButton("10:00", callback_data="10"), InlineKeyboardButton("11:00", callback_data="11")],
+        [InlineKeyboardButton("12:00", callback_data="12"), InlineKeyboardButton("13:00", callback_data="13")],
+        [InlineKeyboardButton("14:00", callback_data="14"), InlineKeyboardButton("15:00", callback_data="15")],
+        [InlineKeyboardButton("16:00", callback_data="16"), InlineKeyboardButton("17:00", callback_data="17")],
+        [InlineKeyboardButton("18:00", callback_data="18"), InlineKeyboardButton("19:00", callback_data="19")],
+        [InlineKeyboardButton("20:00", callback_data="20"), InlineKeyboardButton("21:00", callback_data="21")],
+        [InlineKeyboardButton("22:00", callback_data="22"), InlineKeyboardButton("23:00", callback_data="23")],
+        [InlineKeyboardButton("Отмена", callback_data="отмена")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -71,7 +72,8 @@ async def handle_hour(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    if query and query.data == "отмена": cancel_conversation(update)
+    if query and query.data == "отмена":
+        return cancel_conversation(update)
 
     context.user_data['hour'] = query.data
 
@@ -92,8 +94,8 @@ async def handle_end_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    if query and query.data == "отмена": cancel_conversation(update)
-
+    if query and query.data == "отмена":
+        return cancel_conversation(update)
 
     minut = query.data
     # Формируем итоговое сообщение
@@ -102,7 +104,7 @@ async def handle_end_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     hour = context.user_data['hour']
 
     await query.edit_message_text(
-        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:" + f"{minut}".zfill(2)
+        f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minut.zfill(2)}"
     )
     user_id = query.from_user.id
     habit = {
@@ -139,4 +141,5 @@ def add_habit(application):
     )
 
     application.add_handler(conv_handler)
+
 user_habits = {}
