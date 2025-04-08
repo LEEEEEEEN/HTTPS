@@ -1,6 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
     ContextTypes
+from data import save_habit
 
 NAME, FREQUENCY, HOUR, MINUTE, END_CHAT = range(5)
 
@@ -98,26 +99,13 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if user_id not in user_habits:
         user_habits[user_id] = []
 
+    await save_habit(user_id, habit)
+    
     user_habits[user_id].append(habit)
 
     await query.edit_message_text(
         f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {frequency} в {hour}:{minute.zfill(2)}.")
     return ConversationHandler.END
-
-
-async def show_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    habits = user_habits.get(user_id, [])
-
-    if not habits:
-        await update.message.reply_text("У вас пока нет привычек.")
-        return
-
-    message = "Ваши привычки:\n\n"
-    for i, h in enumerate(habits, start=1):
-        message += f"{i}. {h['name']} — {h['frequency']} в {h['time']}\n"
-
-    await update.message.reply_text(message)
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
