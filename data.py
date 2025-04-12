@@ -12,6 +12,11 @@ async def init_db():
                 time TEXT NOT NULL
             )
         ''')
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER NOT NULL
+            )
+        ''')
         await db.commit()
         
 async def save_habit(user_id: int, habit: dict):
@@ -21,11 +26,29 @@ async def save_habit(user_id: int, habit: dict):
             VALUES (?, ?, ?, ?)
         ''', (user_id, habit["name"], habit["frequency"], habit["time"]))
         await db.commit()
+    
+async def save_user(user_id):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute('''
+            INSERT INTO users (user_id)
+            VALUES (?)
+        ''', (user_id,))
+        await db.commit()
+    
+async def get_all_users():
+    async with aiosqlite.connect(DB_PATH) as db:
+        async with db.execute('''
+            SELECT user_id FROM users
+        ''') as cursor:
+            return await cursor.fetchall()
+        
+        
         
 async def get_user_habits(user_id: int):
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute('''
             SELECT name, frequency, time FROM habits WHERE user_id = ?
-        ''', (user_id,)) as cursor:
+        ''', (user_id[0],)) as cursor:
             rows = await cursor.fetchall()
             return [{"name": row[0], "frequency": row[1], "time": row[2]} for row in rows]
+

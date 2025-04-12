@@ -27,7 +27,8 @@ translate_week = {
     "thu": "каждый четверг",
     "fri": "каждую пятницу",
     "sat": "каждую субботу",
-    "sun": "каждое воскресенье"
+    "sun": "каждое воскресенье",
+    "ежедневно": "ежедневно"
 }
 
 
@@ -116,12 +117,7 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "time": f"{hour}:{minute.zfill(2)}"
     }
 
-    if user_id not in user_habits:
-        user_habits[user_id] = []
-
     await save_habit(user_id, habit)
-    
-    user_habits[user_id].append(habit)
 
     await update.message.reply_text(f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {translate_week[frequency]} в {hour}:{minute.zfill(2)}.")
     return ConversationHandler.END
