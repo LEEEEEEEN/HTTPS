@@ -2,8 +2,10 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
     ContextTypes
 from data import save_habit
+from remind import add_to_planer_remind
 
 NAME, FREQUENCY, HOUR, MINUTE, END_CHAT, WEEK = range(6)
+data_application = []
 
 user_habits = {}
 hour_keyboard = [
@@ -117,6 +119,8 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "time": f"{hour}:{minute.zfill(2)}"
     }
 
+    await add_to_planer_remind(data_application[0], habit, user_id)
+    
     await save_habit(user_id, habit)
 
     await update.message.reply_text(f"Привычка '{habit_name}' успешно создана! Вы будете выполнять её {translate_week[frequency]} в {hour}:{minute.zfill(2)}.")
@@ -129,6 +133,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def add_habit(application):
+    data_application.append(application)
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("add_habit", start_habit_creation)],
         states={
