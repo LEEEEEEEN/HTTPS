@@ -14,10 +14,10 @@ async def remind_loader(application: Application):
     users = await get_all_users()
     
     for user_id in users:
-        habits = await get_user_habits(user_id)
+        habits = await get_user_habits(user_id[0])
         
         for habit in habits:
-            await add_to_planer_remind(application, habit, user_id)
+            await add_to_planer_remind(application, habit, user_id[0])
             
 
 async def add_to_planer_remind(application, habit, user_id):

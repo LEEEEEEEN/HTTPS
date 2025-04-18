@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
     ContextTypes
 from data import get_user_habits
-
+from add_habit import translate_week
 
 
 async def show_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -14,6 +14,6 @@ async def show_habits(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     message = "Ваши привычки:\n\n"
     for i, h in enumerate(habits, start=1):
-        message += f"{i}. {h['name']} — {h['frequency']} в {h['time']}\n"
+        message += f"{i}. {h['name']} — {translate_week[h['frequency']]} в {h['time']}\n"
 
     await update.message.reply_text(message)

@@ -48,7 +48,7 @@ async def get_user_habits(user_id: int):
     async with aiosqlite.connect(DB_PATH) as db:
         async with db.execute('''
             SELECT name, frequency, time FROM habits WHERE user_id = ?
-        ''', (user_id[0],)) as cursor:
+        ''', (user_id,)) as cursor:
             rows = await cursor.fetchall()
             return [{"name": row[0], "frequency": row[1], "time": row[2]} for row in rows]
 
