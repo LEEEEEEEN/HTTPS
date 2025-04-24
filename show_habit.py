@@ -23,9 +23,6 @@ def create_list_habits(message, habits):
             message += f"{i}. {h['name']} — {translate_week[h['frequency']]} в {h['time']}\n"
     return message
 
-def check_number_dumb():
-    pass
-
 async def show_habits_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     habits = await get_user_habits(user_id)

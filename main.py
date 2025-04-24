@@ -3,7 +3,7 @@ from telegram import Update
 from add_habit import add_habit
 import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from data import init_db, save_user
+from data import init_db, save_user, init_user_habits_table
 from show_habit import show_habits
 from remind import remind_loader
 
@@ -21,6 +21,7 @@ async def post_init(application: Application):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
     message = await update.message.reply_text(
         "Привет! 👋\n\n"
         "Я помогу тебе управлять твоими привычками.\n\n"
@@ -29,7 +30,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🔹 /my_habits — чтобы просмотреть все свои привычки\n\n"
         "Давай начнем! 😊"
     )
-    await save_user(update.effective_user.id)
+    await save_user(user_id)
+    await init_user_habits_table(user_id)
     await message.pin()
 
 

@@ -1,12 +1,11 @@
 from telegram.ext import Application
 from apscheduler.triggers.cron import CronTrigger
-from data import get_user_habits, get_all_users
+from data import get_user_habits, get_all_users, save_user_habit
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
     ContextTypes
 
 data_application = []
-data_habit = []
 
 
 async def remind_loader(application: Application):
@@ -40,15 +39,14 @@ async def add_to_planer_remind(application, habit, user_id):
         )
 
 async def remind_conversation(application, chat_id, habit_name):
-    data_habit.append(habit_name)
     conv_handler = ConversationHandler(
         entry_points=[CallbackQueryHandler(handle_response)],
         states={},
         fallbacks=[]
     )
     keyboard = [
-        [InlineKeyboardButton("Делаю!", callback_data="do")],
-        [InlineKeyboardButton("Не в этот раз!", callback_data="not_do")],
+        [InlineKeyboardButton("Делаю!", callback_data=f"do {habit_name}")],
+        [InlineKeyboardButton("Не в этот раз!", callback_data=f"not_do {habit_name}")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await application.bot.send_message(
@@ -63,8 +61,15 @@ async def remind_conversation(application, chat_id, habit_name):
 async def handle_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    if query.data == "do":
+    status = 0
+    text_status, habit_name = query.data.split()
+    print(text_status, habit_name)
+    if text_status == "do":
         await query.edit_message_text(text="Отлично! Продолжайте в том же духе!")
-    elif query.data == "not_do":
+        status = 1
+    elif text_status == "not_do":
         await query.edit_message_text(text="Не переживайте, попробуйте в следующий раз!")
+    
+    await save_user_habit(update.effective_user.id, habit_name, status)
+    
     return ConversationHandler.END

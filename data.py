@@ -1,4 +1,5 @@
 import aiosqlite
+from datetime import datetime
 
 DB_PATH = "data/data.db"
 DB_USERS_PATH = "data/users_habits.db"
@@ -62,3 +63,31 @@ async def get_user_habits(user_id: int):
             rows = await cursor.fetchall()
             return [{"name": row[0], "frequency": row[1], "time": row[2]} for row in rows]
 
+async def init_user_habits_table(user_id):
+    async with aiosqlite.connect(DB_USERS_PATH) as db:
+        await db.execute(f'''
+            CREATE TABLE IF NOT EXISTS "user_{user_id}" (
+                date TEXT NOT NULL,
+                name TEXT NOT NULL,
+                frequency TEXT NOT NULL,
+                status INT NOT NULL
+            )
+        ''')
+        await db.commit()
+
+async def save_user_habit(user_id, habit_name, status):
+    h = None
+    for habit in await get_user_habits(user_id):
+        if habit['name'] == habit_name:
+            h = habit
+            break
+    today = datetime.now().strftime("%Y-%m-%d")
+    if h:
+        async with aiosqlite.connect(DB_USERS_PATH) as db:
+            await db.execute(f'''
+                    INSERT INTO user_{user_id} (date, name, frequency, status)
+                    VALUES (?, ?, ?, ?)
+                ''', (today, h['name'], h['frequency'], status))
+            await db.commit()
+    else:
+        raise ValueError(f"Привычка с именем '{habit_name}' не найдена для пользователя {user_id}.")
