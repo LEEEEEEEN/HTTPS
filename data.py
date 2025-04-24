@@ -28,12 +28,13 @@ async def save_habit(user_id: int, habit: dict):
         await db.commit()
     
 async def save_user(user_id):
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute('''
-            INSERT INTO users (user_id)
-            VALUES (?)
-        ''', (user_id,))
-        await db.commit()
+    if user_id not in [id[0] for id in await get_all_users()]:
+        async with aiosqlite.connect(DB_PATH) as db:
+            await db.execute('''
+                INSERT INTO users (user_id)
+                VALUES (?)
+            ''', (user_id,))
+            await db.commit()
     
 async def get_all_users():
     async with aiosqlite.connect(DB_PATH) as db:
@@ -42,7 +43,8 @@ async def get_all_users():
         ''') as cursor:
             return await cursor.fetchall()
         
-        
+async def del_user_habit(user_id, habit_name):
+    pass
         
 async def get_user_habits(user_id: int):
     async with aiosqlite.connect(DB_PATH) as db:
@@ -51,4 +53,5 @@ async def get_user_habits(user_id: int):
         ''', (user_id,)) as cursor:
             rows = await cursor.fetchall()
             return [{"name": row[0], "frequency": row[1], "time": row[2]} for row in rows]
+
 
