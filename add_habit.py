@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
     ContextTypes
-from data import save_habit
+from data import save_habit, get_user_habits
 from remind import add_to_planer_remind
 
 NAME, FREQUENCY, HOUR, MINUTE, END_CHAT, WEEK = range(6)
@@ -41,6 +41,11 @@ async def start_habit_creation(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     habit_name = update.message.text
+    habits = await get_user_habits(update.effective_user.id)
+    if habit_name in [h["name"] for h in habits]:
+        await update.message.reply_text("Привычка с таким именем уже существует!")
+        context.user_data.clear()
+        return ConversationHandler.END
     context.user_data['habit_name'] = habit_name
     await update.message.reply_text(f"Отлично! Как часто вы хотите выполнять '{habit_name}'?")
 
@@ -128,7 +133,14 @@ async def handle_minute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
     await update.message.reply_text("Создание привычки отменено.")
+    return ConversationHandler.END
+
+async def force_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Сбрасываем состояние
+    context.user_data.clear()
+    await update.message.reply_text("Диалог прерван, повторите последнее действие если это была команда.")
     return ConversationHandler.END
 
 
@@ -143,7 +155,9 @@ def add_habit(application):
             WEEK: [CallbackQueryHandler(week_handler)],
             MINUTE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_minute)],
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[CommandHandler("cancel", cancel),
+                   CommandHandler("start", force_cancel),
+                   MessageHandler(filters.COMMAND, force_cancel)],
     )
 
     application.add_handler(conv_handler)
