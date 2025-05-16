@@ -2,7 +2,7 @@ from telegram.ext import Application
 from apscheduler.triggers.cron import CronTrigger
 from data import get_user_habits, get_all_users, save_user_habit
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, filters, \
+from telegram.ext import ConversationHandler, CallbackQueryHandler, filters, \
     ContextTypes
 
 data_application = []
@@ -42,7 +42,8 @@ async def remind_conversation(application, chat_id, habit_name):
     conv_handler = ConversationHandler(
         entry_points=[CallbackQueryHandler(handle_response)],
         states={},
-        fallbacks=[]
+        fallbacks=[],
+        per_message=False
     )
     keyboard = [
         [InlineKeyboardButton("Делаю!", callback_data=f"do {habit_name}")],

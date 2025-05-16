@@ -108,6 +108,7 @@ def weather_handler(application: Application):
         states={
             CITY: [CallbackQueryHandler(get_weather)]
         },
-        fallbacks=[]
+        fallbacks=[],
+        per_message=False
     )
     application.add_handler(conv_handler)

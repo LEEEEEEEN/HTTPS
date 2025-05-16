@@ -17,7 +17,6 @@ from weather import weather_handler
 #    level=logging.INFO
 #)
 
-
 async def post_init(application: Application):
     await init_db()
     scheduler = AsyncIOScheduler()

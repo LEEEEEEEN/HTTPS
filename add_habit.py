@@ -158,6 +158,7 @@ def add_habit(application):
         fallbacks=[CommandHandler("cancel", cancel),
                    CommandHandler("start", force_cancel),
                    MessageHandler(filters.COMMAND, force_cancel)],
+        per_message=False
     )
 
     application.add_handler(conv_handler)

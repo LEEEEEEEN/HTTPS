@@ -70,6 +70,7 @@ def delete_habit_handler(application):
         states={
             DEL: [MessageHandler(filters.TEXT & ~filters.COMMAND, del_habit)]
         },
-        fallbacks=[MessageHandler(filters.COMMAND, force_cancel)]
+        fallbacks=[MessageHandler(filters.COMMAND, force_cancel)],
+        per_message=False
     )
     application.add_handler(conv_handler)

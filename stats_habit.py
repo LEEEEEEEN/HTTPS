@@ -145,6 +145,7 @@ def stats_habit_handler(application):
         states={
             STATS: [MessageHandler(filters.TEXT & ~filters.COMMAND, stats_hand)]
         },
-        fallbacks=[MessageHandler(filters.COMMAND, force_cancel)]
+        fallbacks=[MessageHandler(filters.COMMAND, force_cancel)],
+        per_message=False
     )
     application.add_handler(conv_handler)

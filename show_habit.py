@@ -2,17 +2,26 @@ from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler
 from data import get_user_habits
 import requests
-import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
 
 def get_joke():
-    url = "http://rzhunemogu.ru/Rand.aspx?CType=8"
-    response = requests.get(url)
-    if response.status_code == 200:
-        root = ET.fromstring(response.text)
-        joke = root.find("content").text
-        return joke.replace("&quot;", '"').replace("&#xA;", "\n")  # Чистим ответ
-    else:
-        return ""
+    url = "https://nekdo.ru/random/ "
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        joke_div = soup.select_one('.text')
+
+        if joke_div:
+            for br in joke_div.find_all("br"):
+                br.replace_with("\n")
+            return joke_div.get_text(strip=True)
+        else:
+            return "Сегодня без шуток 😕"
+
+    except Exception as e:
+        print("Ошибка получения шутки:", e)
+        return "Сегодня без шуток 😢"
 
 translate_week = {
     "mon": "каждый понедельник",
