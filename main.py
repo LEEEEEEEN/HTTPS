@@ -12,10 +12,10 @@ from show_habit import show_habit_handler
 from stats_habit import stats_habit_handler
 from weather import weather_handler
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+#logging.basicConfig(
+#    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+#    level=logging.INFO
+#)
 
 
 async def post_init(application: Application):
